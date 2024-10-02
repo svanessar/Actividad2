@@ -27,18 +27,21 @@ public class Actividad2SistemaGestionBiblioteca {
         int opcion;
 
         do {
-             System.out.println("Elaborado por: Sindy Vanessa Realpe Rincon");
-            System.out.println("========================================");
-            System.out.println("    SISTEMA DE GESTION DE BIBLIOTECA    ");
-            System.out.println("========================================");
-            System.out.println("1. Agregar Libro");
-            System.out.println("2. Registrar usuario");
-            System.out.println("3. Prestar libro");
-            System.out.println("4. Devolver libro");
-            System.out.println("5. Mostrar libros disponibles");
-            System.out.println("6. Mostrar usuarios registrados");
-            System.out.println("7. Salir");
-            System.out.println("Seleccione una opcion");
+            System.out.println(" ");
+            System.out.println("+--------------------------------------------------------+");
+            System.out.println("|              BY: Sindy Vanessa Realpe Rincon           |");
+            System.out.println("+--------------------------------------------------------+");
+            System.out.println("|              SISTEMA DE GESTION DE BIBLIOTECA          |");
+            System.out.println("+--------------------------------------------------------+");
+            System.out.println("|  1. Agregar Libro                                      |");
+            System.out.println("|  2. Registrar Usuario                                  |");
+            System.out.println("|  3. Prestar Libro                                      |");
+            System.out.println("|  4. Devolver Libro                                     |");
+            System.out.println("|  5. Mostrar Libros Disponibles                         |");
+            System.out.println("|  6. Mostrar Usuarios Registrados                       |");
+            System.out.println("|  7. Salir                                              |");
+            System.out.println("+--------------------------------------------------------+");
+            System.out.println("Seleccione una opcion:");
 
             while (!entrada.hasNextInt()) {
                 System.out.println("Error: Ingrese un numero valido!");
@@ -50,7 +53,7 @@ public class Actividad2SistemaGestionBiblioteca {
 
             switch (opcion) {
                 case 1:
-                    System.out.println("Ingrese el ID del libro (único)");
+                    System.out.println("Ingrese el ID del libro (unico)");
                     String pkLibro = entrada.nextLine();
                     boolean pkDuplicado = false;
                     for (String[] libro : libros) {
@@ -105,16 +108,91 @@ public class Actividad2SistemaGestionBiblioteca {
                     break;
 
                 case 3:
-                    // Lógica para prestar libro
+                    System.out.println("Ingrese el ID del libro que desea llevar:");
+                    String idPrestar = entrada.nextLine();
+
+                    System.out.println("Ingrese la cédula del usuario que desea prestar el libro:");
+                    while (!entrada.hasNextInt()) {
+                        System.out.println("Error: Ingrese una cédula válida (SOLO NÚMEROS):");
+                        entrada.next();
+                    }
+                    int cedulaPrestar = entrada.nextInt();
+                    entrada.nextLine();
+
+                    // Verificar si el usuario está registrado
+                    boolean usuarioRegistrado = false;
+                    for (String[] usuario : usuarios) {
+                        if (usuario[0].equals(String.valueOf(cedulaPrestar))) {
+                            usuarioRegistrado = true;
+                            break;
+                        }
+                    }
+
+                    if (!usuarioRegistrado) {
+                        System.out.println("Error: El usuario con cédula " + cedulaPrestar + " no está registrado. Registre el usuario para continuar.");
+                    } else {
+                        // Verificar si el libro está disponible
+                        boolean libroEncontrado = false;
+                        for (String[] libro : libros) {
+                            if (libro[0].equals(idPrestar)) {
+                                librosPrestados.push(new String[]{idPrestar, libro[1], libro[2], String.valueOf(cedulaPrestar)});
+                                libros.remove(libro);
+                                libroEncontrado = true;
+                                System.out.println("¡Libro prestado con éxito!");
+                                break;
+                            }
+                        }
+
+                        if (!libroEncontrado) {
+                            System.out.println("Libro no disponible. ¿Desea agregar a la cola de espera? (si/no)");
+                            String respuesta = entrada.nextLine();
+                            if (respuesta.equalsIgnoreCase("si")) {
+                                colaEspera.add(new String[]{idPrestar, String.valueOf(cedulaPrestar)});
+                                System.out.println("Agregado a la cola de espera.");
+                            }
+                        }
+                    }
                     break;
                 case 4:
-                    // Lógica para devolver libro
+                    if (!librosPrestados.isEmpty()) {
+                        String[] libroDevuelto = librosPrestados.pop();
+                        libros.add(new String[]{libroDevuelto[0], libroDevuelto[1], libroDevuelto[2]});
+                        System.out.println("Libro devuelto exitosamente");
+
+                    }
+                    if (!colaEspera.isEmpty()) {
+                        String[] proximaEnCola = colaEspera.poll();
+                        System.out.println("El usuario con cedula" + proximaEnCola[1] + "esta en cola y ahora prestara el libro con ID" + proximaEnCola[0]);
+                        librosPrestados.push(proximaEnCola);
+                    } else {
+                        System.out.println("No hay libros prestados");
+                    }
                     break;
                 case 5:
-                    // Lógica para mostrar libros disponibles
+                    if (libros.isEmpty()) {
+                        System.out.println("No hay libros disponibles");
+                    } else {
+                        System.out.println("+-------------------Libros Disponibles------------------+");
+                        System.out.printf("%15s %-20s %-30s%n", "ID", "Nombre", "Autor");
+                        for (String[] libro : libros) {
+                            System.out.printf("%15s %-20s %-30s%n", libro[0], libro[1], libro[2]);
+
+                        }
+
+                    }
                     break;
                 case 6:
-                    // Lógica para mostrar usuarios registrados
+                    if (usuarios.isEmpty()) {
+                        System.out.println("No hay usuarios disponibles");
+                    } else {
+                        System.out.println("+------------------Usuarios Disponibles------------------+");
+                        System.out.printf("%15s %-15s %-20s%n", "Cedula", "Nombre", "Apellido");
+                        for (String[] usuario : usuarios) {
+                            System.out.printf("%15s %-15s %-20s%n", usuario[0], usuario[1], usuario[2]);
+
+                        }
+
+                    }
                     break;
                 case 7:
                     System.out.println("Saliendo del sistema...");
